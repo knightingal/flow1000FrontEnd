@@ -57,8 +57,15 @@ export class SectionList extends React.Component<{container: Container}, {sectio
     render() {
         return <div className="SectionList">
             {this.state.sectionList.map((sectionBean: SectionBean, index: number) => {
-                return (<div key={index} onClick={(e) => this.handleSectionClick(e, sectionBean.index)} style={{backgroundColor: (sectionBean.index === this.state.selectedIndex ? 'yellow' : 'white')}}>
-                    <a className="SectionListItem">{sectionBean.name}</a>
+                return (<div 
+                    key={index} 
+                    onClick={(e) => this.handleSectionClick(e, sectionBean.index)} 
+                    // style={{backgroundColor: (sectionBean.index === this.state.selectedIndex ? 'yellow' : 'white')}}
+                >
+                    <a 
+                        className="SectionListItem" 
+                        style={{fontFamily:"DejaVu Sans", color:(sectionBean.index === this.state.selectedIndex ? '#35b5ff' : 'black')}}
+                    >{sectionBean.name}</a>
                 </div>);
             })}
         </div>
