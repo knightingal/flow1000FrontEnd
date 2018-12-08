@@ -35,6 +35,11 @@ export class Popup extends React.Component<{container: Container}, {transform:st
     render() {
         return (
             <div style={{
+                height:"100%",
+                width:"100%",
+                backgroundColor:"lightgray"
+            }}>
+            <div style={{
                 position: 'absolute', 
                 top:'50%', 
                 left:'50%', 
@@ -46,7 +51,8 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                 transition:'all 0.1s linear',
                 borderStyle: "solid",
                 borderWidth: "2px",
-                borderColor: "#35b5ff"
+                borderColor: "white",
+                backgroundColor:"white"
             }}>
                 <div 
                     style={{
@@ -71,9 +77,10 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                             padding:"1px", 
                             border:"1px", 
                             borderStyle:"solid", 
-                            borderColor:"#35b5ff",
+                            borderColor:"white",
                             marginTop: '8px',
-                            marginBottom: '8px'
+                            marginBottom: '8px',
+                            backgroundColor:"whitesmoke"
                         }} 
                         onChange={(e) => this.handleChange(e)}
                     />
@@ -92,6 +99,7 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                         }}
                     />
                 </div>
+            </div>
             </div>
         ) ;
     }
