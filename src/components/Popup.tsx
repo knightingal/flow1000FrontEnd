@@ -42,10 +42,11 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                 textAlign: 'center', 
                 padding:'16px',
                 paddingRight:'20px', 
-                boxShadow: '10px 10px 5px #888888',
                 width:'230px',
-                backgroundColor:'lightblue',
                 transition:'all 0.1s linear',
+                borderStyle: "solid",
+                borderWidth: "2px",
+                borderColor: "#35b5ff"
             }}>
                 <div 
                     style={{
@@ -70,7 +71,7 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                             padding:"1px", 
                             border:"1px", 
                             borderStyle:"solid", 
-                            borderColor:"darkgray",
+                            borderColor:"#35b5ff",
                             marginTop: '8px',
                             marginBottom: '8px'
                         }} 
@@ -83,11 +84,11 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                         value='OK' 
                         onClick={(e) => this.handleDivClick(e)} 
                         style={{
-                            height:'19px',
-                            border: '1px',
-                            background: 'center',
-                            borderStyle: 'solid',
-                            borderColor: 'darkgray'
+                            border:"0px",
+                            background:"center center",
+                            color:"#35b5ff",
+                            fontSize: '16px',
+                            fontFamily:'DejaVu Sans',
                         }}
                     />
                 </div>
