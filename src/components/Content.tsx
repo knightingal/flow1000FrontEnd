@@ -83,6 +83,7 @@ export class Content extends React.Component<{index:string, password:string}, {s
     }
 
     scrollHandler(e : React.UIEvent) {
+        // this is a lazyload implament
         const scrollTop: number = (e.target as HTMLDivElement).scrollTop;
         const clientHeight: number = (e.target as HTMLDivElement).clientHeight;
         let update = false;
