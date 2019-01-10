@@ -9,7 +9,7 @@ class SectionBean {
 export class SectionList extends React.Component<{container: Container}, {sectionList:Array<SectionBean>, selectedIndex: string}> {
     url:URL;
     battleShipPage:Boolean;
-    sectionItemHeightStep:Array<Number>;
+    sectionItemHeightStep:Array<number> = null;
     divRefs:React.RefObject<HTMLDivElement>;
 
     constructor(props:{container: Container}) {
@@ -59,8 +59,8 @@ export class SectionList extends React.Component<{container: Container}, {sectio
         });
     }
 
-    currentTopPicIndex: number;
-    currentButtonPicIndex: number;
+    currentTopPicIndex: number = null;
+    currentButtonPicIndex: number = null;
     
     scrollHandler(e : React.UIEvent) {
         // this is a lazyload implament
@@ -106,8 +106,25 @@ export class SectionList extends React.Component<{container: Container}, {sectio
         }
     }
 
+    TopPadding(props:{sectionList:SectionList}) {
+        let self = props.sectionList;
+        if (self.sectionItemHeightStep != null && self.currentTopPicIndex != null) {
+            return <div style={{height:`${self.sectionItemHeightStep[self.currentTopPicIndex] - 19}px`}} />;
+        }
+        return null;
+    }
+
+    BottomPadding(props:{sectionList:SectionList}) {
+        let self = props.sectionList;
+        if (self.sectionItemHeightStep != null && self.currentButtonPicIndex != null) {
+            return <div style={{height: `${self.sectionItemHeightStep[self.sectionItemHeightStep.length - 1] - self.sectionItemHeightStep[self.currentButtonPicIndex]}px`}} />;
+        }
+        return null;
+    }
+
     render() {
         return <div className="SectionList" onScroll={(e) => this.scrollHandler(e)} ref={this.divRefs}>
+            <this.TopPadding sectionList={this} />
             {this.state.sectionList.map((sectionBean: SectionBean, index: number) => {
                 const displayImg = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1; 
                 return displayImg ?
@@ -120,8 +137,11 @@ export class SectionList extends React.Component<{container: Container}, {sectio
                         style={{fontFamily:"DejaVu Sans", color:(sectionBean.index === this.state.selectedIndex ? '#35b5ff' : 'black')}}
                     >{sectionBean.name}</a>
                 </div>) 
-                : (<div key={index} style={{height:"19px"}}></div>);
+                : null;
+            }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
+                return value != null;
             })}
+            <this.BottomPadding sectionList={this}/>
         </div>
     }
 }
