@@ -109,6 +109,12 @@ export class SectionList extends React.Component<{container: Container}, {sectio
     TopPadding(props:{sectionList:SectionList}) {
         let self = props.sectionList;
         if (self.sectionItemHeightStep != null && self.currentTopPicIndex != null) {
+            // 这里有个bug： 滚轴滑动到最顶端时，currentTopPicIndex会=-1，这会导致sectionItemHeightStep[-1]取值异常，
+            // react就不会去更新topPadding的高度，在滑动速度很快时，顶端就会留下一块空白
+            // 所以这里为了修复这个问题，对currentTopPicIndex的值做了判定，<0时，topPadding高度设置为0
+            if (self.currentTopPicIndex < 0) {
+                return <div style={{height:"0px"}} />;
+            }
             return <div style={{height:`${self.sectionItemHeightStep[self.currentTopPicIndex] - 19}px`}} />;
         }
         return null;
