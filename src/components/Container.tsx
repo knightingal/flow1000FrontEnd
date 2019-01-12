@@ -32,9 +32,14 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
         if (this.state.popup == true) {
             return <Popup container={this}/>
         } else {
-            return <div className="Container">
+            return <div className="RContainer" >
+            <header className="Header" />
+            <div className="Container">
                 <Content index={this.state.index} password={this.password}/>
                 <SectionList container={this}/>
+                <div className="Right" />
+            </div>
+            <footer className="Footer" />
             </div>
         }
    }
