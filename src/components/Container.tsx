@@ -3,6 +3,7 @@ import * as React from 'react';
 import {SectionList} from './SectionList';
 import {Content} from './Content';
 import {Popup} from './Popup';
+import './Style.css';
 
 export class Container extends React.Component<{}, {popup: boolean ,index: string}> {
     password:string;
