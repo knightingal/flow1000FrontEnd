@@ -13,9 +13,13 @@ function lazyLoader<ITEM_TYPE>(
         constructor(props:{}) {
             super(props);
             this.itemHeightStep = itemHeightStep;
-            this.state = {dataList:dataList}
+            this.state = {dataList:dataList};
+
+            this.currentTopPicIndex = 0;
+            this.currentButtonPicIndex = this.checkPostionInPic(981);
         }
 
+        divRefs:React.RefObject<HTMLDivElement>;
         itemHeightStep:Array<number>;
         currentTopPicIndex: number = null;
         currentButtonPicIndex: number = null;
@@ -73,7 +77,7 @@ function lazyLoader<ITEM_TYPE>(
         }
 
         render() {
-            return <div onScroll={(e)=>this.scrollHandler(e)}>
+            return <div onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.state.dataList.map((itemBean:ITEM_TYPE, index: number) => {
                     const display = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1;
@@ -90,14 +94,14 @@ function lazyLoader<ITEM_TYPE>(
 }
 
 class SectionBean {
-    index:string;
+    //index:string;
     name:string;
-    mtime:string;
+    //mtime:string;
 
-    constructor(index:string, name:string, mtime:string) {
-        this.index = index;
+    constructor(name:string) {
+        //this.index = index;
         this.name = name;
-        this.mtime = mtime;
+        //this.mtime = mtime;
     }
 }
 
@@ -114,12 +118,17 @@ class WrappedDiv extends React.Component<{item:SectionBean}> {
         </div>
     }
 }
+function initSectionList(count: number) {
+    const sectionList:Array<SectionBean> = [];
+    for (let i=0;i<count;i++) {
+        sectionList.push(new SectionBean(`${i}`));
+    }
+    return sectionList;
+}
+const sectionList:Array<SectionBean> = initSectionList(500);
 
-const sectionList:Array<SectionBean> = [
-    new SectionBean("1", "1", "1"),
-    new SectionBean("2", "2", "2"),
-    new SectionBean("3", "3", "3"),
-]
+const gItemHeightStep = sectionList.map((value, index, array) => {
+    return 19 * index;
+});
 
-
-const LazyDiv = lazyLoader(WrappedDiv, [1,2,3], sectionList);
+export const LazyDiv = lazyLoader(WrappedDiv, gItemHeightStep, sectionList);
