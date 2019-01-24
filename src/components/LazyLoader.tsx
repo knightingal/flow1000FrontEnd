@@ -4,19 +4,24 @@ interface WrappedProps<ITEM_TYPE> {
     item: ITEM_TYPE
 }
 
+interface LazyState {
+    currentTopPicIndex:number; 
+    currentButtonPicIndex:number;
+}
+
+interface LazyProps<ITEM_TYPE> {
+    dataList:Array<ITEM_TYPE>;
+}
+
 function lazyLoader<ITEM_TYPE>(
     WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>, 
-    itemHeightStep:Array<number>, 
-    dataList:Array<ITEM_TYPE>
-):React.ComponentClass<{}> {
-    return class LazyLoader extends React.Component<
-        {}, 
-        {dataList:Array<ITEM_TYPE>, currentTopPicIndex:number, currentButtonPicIndex:number}
-    > {
-        constructor(props:{}) {
+    itemHeightStep:Array<number> 
+):React.ComponentClass<LazyProps<ITEM_TYPE>> {
+    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE>, LazyState> {
+        constructor(props:LazyProps<ITEM_TYPE>) {
             super(props);
             this.itemHeightStep = itemHeightStep;
-            this.state = {dataList:dataList,
+            this.state = {
                 currentButtonPicIndex:null,
                 currentTopPicIndex:null,
             };
@@ -84,7 +89,7 @@ function lazyLoader<ITEM_TYPE>(
         render() {
             return <div onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
-                {this.state.dataList.map((itemBean:ITEM_TYPE, index: number) => {
+                {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
                     const display = index >= this.state.currentTopPicIndex - 1 && index <= this.state.currentButtonPicIndex + 1;
                     return display ?
                     (<WrappedComponent key={index} item={itemBean} />)
@@ -126,10 +131,11 @@ function initSectionList(count: number) {
     }
     return sectionList;
 }
-const sectionList:Array<SectionBean> = initSectionList(500);
+export const sectionList:Array<SectionBean> = initSectionList(500);
 
 const gItemHeightStep = sectionList.map((value, index, array) => {
     return 19 * index;
 });
 
-export const LazyDiv = lazyLoader(WrappedDiv, gItemHeightStep, sectionList);
+
+export const LazyDiv = lazyLoader(WrappedDiv, gItemHeightStep);
