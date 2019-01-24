@@ -3,6 +3,7 @@ import * as React from 'react';
 import {SectionList} from './SectionList';
 import {Content} from './Content';
 import {Popup} from './Popup';
+import {LazyDiv} from './LazyLoader';
 import './Style.css';
 
 export class Container extends React.Component<{}, {popup: boolean ,index: string}> {
@@ -30,6 +31,13 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
     }
 
     render() {
+        
+        const url = new URL(document.URL);
+        const lazy = url.pathname.indexOf("lazy.html") >= 0;
+        if (lazy === true) {
+            return <LazyDiv />
+        }
+
         if (this.state.popup == true) {
             return <Popup container={this}/>
         } else {
@@ -43,5 +51,5 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
             <footer className="Footer" />
             </div>
         }
-   }
+    }
 }
