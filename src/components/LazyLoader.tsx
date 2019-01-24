@@ -9,55 +9,52 @@ function lazyLoader<ITEM_TYPE>(
     itemHeightStep:Array<number>, 
     dataList:Array<ITEM_TYPE>
 ):React.ComponentClass<{}> {
-    return class LazyLoader extends React.Component<{}, {dataList:Array<ITEM_TYPE>}> {
+    return class LazyLoader extends React.Component<
+        {}, 
+        {dataList:Array<ITEM_TYPE>, currentTopPicIndex:number, currentButtonPicIndex:number}
+    > {
         constructor(props:{}) {
             super(props);
             this.itemHeightStep = itemHeightStep;
-            this.state = {dataList:dataList};
+            this.state = {dataList:dataList,
+                currentButtonPicIndex:null,
+                currentTopPicIndex:null,
+            };
 
-            this.currentTopPicIndex = 0;
-            this.currentButtonPicIndex = this.checkPostionInPic(981);
+            this.divRefs = React.createRef();
         }
 
         divRefs:React.RefObject<HTMLDivElement>;
         itemHeightStep:Array<number>;
-        currentTopPicIndex: number = null;
-        currentButtonPicIndex: number = null;
 
         scrollHandler(e: React.UIEvent) {
             const scrollTop: number = (e.target as HTMLDivElement).scrollTop;
             const clientHeight: number = (e.target as HTMLDivElement).clientHeight;
-            let update = false;
             // calculate the index of top picture after scroll
             const refreshTopPicIndex = this.checkPostionInPic(scrollTop);
-            if (refreshTopPicIndex !== this.currentTopPicIndex) {
-                this.currentTopPicIndex = refreshTopPicIndex;
-                console.log(`change top to pic index: ${this.currentTopPicIndex}`);
-                update = true;
+
+            if (refreshTopPicIndex !== this.state.currentTopPicIndex) {
+                this.setState({currentTopPicIndex: refreshTopPicIndex});
+                console.log(`change top to pic index: ${this.state.currentTopPicIndex}`);
             }
             // calculate the index of button picture after scroll
             const refreshButtonPicIndex = this.checkPostionInPic(scrollTop + clientHeight);
-            if (refreshButtonPicIndex !== this.currentButtonPicIndex) {
-                this.currentButtonPicIndex = refreshButtonPicIndex;
-                console.log(`change button to pic index: ${this.currentButtonPicIndex}`);
-                update = true;
-            }
-            // if any index of picture changed, re-render the page
-            if (update) {
-                this.setState(this.state);
+            if (refreshButtonPicIndex !== this.state.currentButtonPicIndex) {
+                this.setState({currentButtonPicIndex:refreshButtonPicIndex}) ;
+                console.log(`change button to pic index: ${this.state.currentButtonPicIndex}`);
             }
         }
 
         TopPadding(props:{self:LazyLoader}) {
             let self = props.self;
-            if (self.itemHeightStep != null && self.currentTopPicIndex != null) {
+            if (self.itemHeightStep != null && self.state.currentTopPicIndex != null) {
                 // 这里有个bug： 滚轴滑动到最顶端时，currentTopPicIndex会=-1，这会导致sectionItemHeightStep[-1]取值异常，
                 // react就不会去更新topPadding的高度，在滑动速度很快时，顶端就会留下一块空白
                 // 所以这里为了修复这个问题，对currentTopPicIndex的值做了判定，<0时，topPadding高度设置为0
-                if (self.currentTopPicIndex < 0) {
+                if (self.state.currentTopPicIndex < 0) {
                     return <div style={{height:"0px"}} />;
                 }
-                return <div style={{height:`${self.itemHeightStep[self.currentTopPicIndex] - 19}px`}} />;
+                return <div style={{height:`${self.itemHeightStep[self.state.currentTopPicIndex] - 19}px`}} />;
             }
             return null;
         }
@@ -68,10 +65,18 @@ function lazyLoader<ITEM_TYPE>(
             }).length - 1;
         }
 
+        componentDidMount() {
+            this.setState({
+                currentTopPicIndex:0,
+                currentButtonPicIndex:this.checkPostionInPic(this.divRefs.current.clientHeight),
+            });
+        }
+
         BottomPadding(props:{self:LazyLoader}) {
             let self = props.self;
-            if (self.itemHeightStep != null && self.currentButtonPicIndex != null) {
-                return <div style={{height: `${self.itemHeightStep[self.itemHeightStep.length - 1] - self.itemHeightStep[self.currentButtonPicIndex]}px`}} />;
+            if (self.itemHeightStep != null && self.state.currentButtonPicIndex != null) {
+                return <div style={{height: 
+                    `${self.itemHeightStep[self.itemHeightStep.length - 1] - self.itemHeightStep[self.state.currentButtonPicIndex]}px`}} />;
             }
             return null;
         }
@@ -80,7 +85,7 @@ function lazyLoader<ITEM_TYPE>(
             return <div onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.state.dataList.map((itemBean:ITEM_TYPE, index: number) => {
-                    const display = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1;
+                    const display = index >= this.state.currentTopPicIndex - 1 && index <= this.state.currentButtonPicIndex + 1;
                     return display ?
                     (<WrappedComponent key={index} item={itemBean} />)
                     : null;
@@ -94,14 +99,10 @@ function lazyLoader<ITEM_TYPE>(
 }
 
 class SectionBean {
-    //index:string;
     name:string;
-    //mtime:string;
 
     constructor(name:string) {
-        //this.index = index;
         this.name = name;
-        //this.mtime = mtime;
     }
 }
 
