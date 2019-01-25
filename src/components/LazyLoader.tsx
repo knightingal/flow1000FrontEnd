@@ -9,18 +9,25 @@ interface LazyState {
     currentButtonPicIndex:number;
 }
 
-interface LazyProps<ITEM_TYPE> {
+interface HeightType {
+    height: number;
+}
+
+// 输入的item数据必须包含一个height字段，用于表示每个item的高度
+interface LazyProps<ITEM_TYPE extends HeightType> {
     dataList:Array<ITEM_TYPE>;
 }
 
-function lazyLoader<ITEM_TYPE>(
-    WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>, 
-    itemHeightStep:Array<number> 
+function lazyLoader<ITEM_TYPE extends HeightType>(
+    WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>
 ):React.ComponentClass<LazyProps<ITEM_TYPE>> {
     return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE>, LazyState> {
         constructor(props:LazyProps<ITEM_TYPE>) {
             super(props);
-            this.itemHeightStep = itemHeightStep;
+            this.itemHeightStep = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>) => {
+                return value.height * index;
+            });
+
             this.state = {
                 currentButtonPicIndex:null,
                 currentTopPicIndex:null,
@@ -103,11 +110,12 @@ function lazyLoader<ITEM_TYPE>(
     }
 }
 
-class SectionBean {
-    name:string;
-
+class SectionBean implements HeightType {
+    name: string;
+    height: number;
     constructor(name:string) {
         this.name = name;
+        this.height = 19;
     }
 }
 
@@ -133,9 +141,4 @@ function initSectionList(count: number) {
 }
 export const sectionList:Array<SectionBean> = initSectionList(500);
 
-const gItemHeightStep = sectionList.map((value, index, array) => {
-    return 19 * index;
-});
-
-
-export const LazyDiv = lazyLoader(WrappedDiv, gItemHeightStep);
+export const LazyDiv = lazyLoader(WrappedDiv);
