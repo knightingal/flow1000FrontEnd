@@ -130,23 +130,24 @@ export class SectionList extends React.Component<{container: Container}, {sectio
 
     render() {
         return <div className="SectionList" onScroll={(e) => this.scrollHandler(e)} ref={this.divRefs}>
-            <this.TopPadding sectionList={this} />
-            {this.state.sectionList.map((sectionBean: SectionBean, index: number) => {
-                const displayImg = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1; 
-                return displayImg ?
-                (<div 
-                    key={index} 
-                    onClick={(e) => this.handleSectionClick(e, sectionBean.index)} 
-                >
-                    <a 
-                        className="SectionListItem" 
-                        style={{fontFamily:"DejaVu Sans", color:(sectionBean.index === this.state.selectedIndex ? '#35b5ff' : 'black')}}
-                    >{sectionBean.name}</a>
-                </div>) 
-                : null;
-            }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
-                return value != null;
-            })}
+            <this.TopPadding sectionList={this} /> {
+                this.state.sectionList.map((sectionBean: SectionBean, index: number) => {
+                    const displayImg = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1; 
+                    return displayImg ? (
+                        <div 
+                            key={index} 
+                            onClick={(e) => this.handleSectionClick(e, sectionBean.index)} 
+                        >
+                            <a 
+                                className="SectionListItem" 
+                                style={{fontFamily:"DejaVu Sans", color:(sectionBean.index === this.state.selectedIndex ? '#35b5ff' : 'black')}}
+                            >{sectionBean.name}</a>
+                        </div>
+                    ) : null;
+                }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
+                    return value != null;
+                })
+            }
             <this.BottomPadding sectionList={this}/>
         </div>
     }
