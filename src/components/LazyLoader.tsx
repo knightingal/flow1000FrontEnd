@@ -19,7 +19,8 @@ interface LazyProps<ITEM_TYPE extends HeightType> {
 }
 
 export function lazyLoader<ITEM_TYPE extends HeightType>(
-    WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>
+    WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>, 
+    className:string
 ):React.ComponentClass<LazyProps<ITEM_TYPE>> {
     return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE>, LazyState> {
         constructor(props:LazyProps<ITEM_TYPE>) {
@@ -59,14 +60,20 @@ export function lazyLoader<ITEM_TYPE extends HeightType>(
 
         TopPadding(props:{self:LazyLoader}) {
             let self = props.self;
-            if (self.itemHeightStep != null && self.state.currentTopPicIndex != null) {
+            if (self.itemHeightStep != null && self.state.currentTopPicIndex != null && self.props.dataList != null) {
                 // 这里有个bug： 滚轴滑动到最顶端时，currentTopPicIndex会=-1，这会导致sectionItemHeightStep[-1]取值异常，
                 // react就不会去更新topPadding的高度，在滑动速度很快时，顶端就会留下一块空白
                 // 所以这里为了修复这个问题，对currentTopPicIndex的值做了判定，<0时，topPadding高度设置为0
                 if (self.state.currentTopPicIndex < 0) {
                     return <div style={{height:"0px"}} />;
                 }
-                return <div style={{height:`${self.itemHeightStep[self.state.currentTopPicIndex] - 24}px`}} />;
+                if (self.props.dataList.length == 0) {
+                    return <div style={{height:"0px"}} />;
+                }
+                const currentTopPicIndex: number = self.state.currentTopPicIndex;
+                const topPaddingHeight = self.itemHeightStep[currentTopPicIndex] 
+                    - self.props.dataList[currentTopPicIndex].height;
+                return <div style={{height:`${topPaddingHeight}px`}} />;
             }
             return null;
         }
@@ -106,7 +113,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType>(
         }
 
         render() {
-            return <div className="SectionList" onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
+            return <div className={className} onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
                     const display = index >= this.state.currentTopPicIndex - 1 && index <= this.state.currentButtonPicIndex + 1;
@@ -153,4 +160,4 @@ function initSectionList(count: number) {
 }
 export const sectionList:Array<SectionBean> = initSectionList(500);
 
-export const LazyDiv = lazyLoader(WrappedDiv);
+export const LazyDiv = lazyLoader(WrappedDiv, "");

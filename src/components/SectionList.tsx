@@ -94,4 +94,4 @@ class SectionItem extends React.Component<{item:SectionBean}> {
     }
 }
 
-const LazyLoader = lazyLoader(SectionItem);
+const LazyLoader = lazyLoader(SectionItem, "SectionList");
