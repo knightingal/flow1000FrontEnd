@@ -66,7 +66,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType>(
                 if (self.state.currentTopPicIndex < 0) {
                     return <div style={{height:"0px"}} />;
                 }
-                return <div style={{height:`${self.itemHeightStep[self.state.currentTopPicIndex] - 19}px`}} />;
+                return <div style={{height:`${self.itemHeightStep[self.state.currentTopPicIndex] - 24}px`}} />;
             }
             return null;
         }

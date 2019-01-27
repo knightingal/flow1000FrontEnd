@@ -44,7 +44,7 @@ export class SectionList extends React.Component<{container: Container}, {sectio
                 );
             }
             sectionList.forEach((value:SectionBean, index:number, array:SectionBean[]) => {
-                value.height = 19;
+                value.height = 24;
             })
 
             this.setState({
