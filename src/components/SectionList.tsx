@@ -46,6 +46,8 @@ export class SectionList extends React.Component<{container: Container}, {sectio
                 );
             }
             sectionList.forEach((value:SectionBean, index:number, array:SectionBean[]) => {
+                //  这里我犯了一个错误，实际上这里的div元素的高度是24，里面的a元素的高度才是19，
+                // 这个错误导致后续对padding div高度计算的错误，引发了一个定位了很久的bug。
                 value.height = 24;
                 value.selected = false;
             })
