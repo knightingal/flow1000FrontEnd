@@ -1,7 +1,9 @@
 import * as React from 'react';
+import {Container} from './Container'
 
-interface WrappedProps<ITEM_TYPE> {
-    item: ITEM_TYPE
+interface WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE> {
+    item: ITEM_TYPE;
+    parentComp:PARENT_COMP_TYPE;
 }
 
 interface LazyState {
@@ -14,16 +16,17 @@ export interface HeightType {
 }
 
 // 输入的item数据必须包含一个height字段，用于表示每个item的高度
-interface LazyProps<ITEM_TYPE extends HeightType> {
+interface LazyProps<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE> {
     dataList:Array<ITEM_TYPE>;
+    parentComp:PARENT_COMP_TYPE;
 }
 
-export function lazyLoader<ITEM_TYPE extends HeightType>(
-    WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>, 
+export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
+    WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE>>, 
     className:string
-):React.ComponentClass<LazyProps<ITEM_TYPE>> {
-    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE>, LazyState> {
-        constructor(props:LazyProps<ITEM_TYPE>) {
+):React.ComponentClass<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>> {
+    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, LazyState> {
+        constructor(props:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>) {
             super(props);
             this.itemHeightStep = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>) => {
                 return value.height * index;
@@ -84,7 +87,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType>(
             }).length - 1;
         }
 
-        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE>, prevState:LazyState) {
+        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, prevState:LazyState) {
             if (this.props.dataList.length != prevProps.dataList.length) {
                 this.itemHeightStep = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>) => {
                     return value.height * index;
@@ -118,7 +121,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType>(
                 {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
                     const display = index >= this.state.currentTopPicIndex - 1 && index <= this.state.currentButtonPicIndex + 1;
                     return display ?
-                    (<WrappedComponent key={index} item={itemBean} />)
+                    (<WrappedComponent key={index} item={itemBean} parentComp={this.props.parentComp}/>)
                     : null;
                 }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
                     return value != null;
@@ -138,8 +141,8 @@ class SectionBean implements HeightType {
     }
 }
 
-class WrappedDiv extends React.Component<{item:SectionBean}> {
-    constructor(props:{item:SectionBean}) {
+class WrappedDiv extends React.Component<{item:SectionBean, parentComp:Container}> {
+    constructor(props:{item:SectionBean, parentComp:Container}) {
         super(props);
     }
 

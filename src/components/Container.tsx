@@ -35,7 +35,7 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
         const url = new URL(document.URL);
         const lazy = url.pathname.indexOf("lazy.html") >= 0;
         if (lazy === true) {
-            return <LazyDiv dataList={sectionList}/>
+            return <LazyDiv dataList={sectionList} parentComp={this}/>
         }
 
         if (this.state.popup == true) {
