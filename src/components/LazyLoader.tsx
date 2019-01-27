@@ -9,7 +9,7 @@ interface LazyState {
     currentButtonPicIndex:number;
 }
 
-interface HeightType {
+export interface HeightType {
     height: number;
 }
 
@@ -18,7 +18,7 @@ interface LazyProps<ITEM_TYPE extends HeightType> {
     dataList:Array<ITEM_TYPE>;
 }
 
-function lazyLoader<ITEM_TYPE extends HeightType>(
+export function lazyLoader<ITEM_TYPE extends HeightType>(
     WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>
 ):React.ComponentClass<LazyProps<ITEM_TYPE>> {
     return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE>, LazyState> {
@@ -77,6 +77,18 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
             }).length - 1;
         }
 
+        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE>, prevState:LazyState) {
+            if (this.props.dataList.length != prevProps.dataList.length) {
+                this.itemHeightStep = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>) => {
+                    return value.height * index;
+                });
+                this.setState({
+                    currentTopPicIndex:0,
+                    currentButtonPicIndex:this.checkPostionInPic(this.divRefs.current.clientHeight),
+                });
+            }
+        }
+
         componentDidMount() {
             this.setState({
                 currentTopPicIndex:0,
@@ -94,7 +106,7 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
         }
 
         render() {
-            return <div onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
+            return <div className="SectionList" onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
                     const display = index >= this.state.currentTopPicIndex - 1 && index <= this.state.currentButtonPicIndex + 1;

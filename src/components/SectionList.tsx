@@ -1,6 +1,9 @@
 import * as React from 'react';
 import {Container} from './Container';
-class SectionBean {
+import {lazyLoader, HeightType, sectionList} from './LazyLoader';
+class SectionBean implements HeightType{
+    height:number;
+
     index:string;
     name:string;
     mtime:string;
@@ -40,11 +43,9 @@ export class SectionList extends React.Component<{container: Container}, {sectio
                     sectionList, sectionList, sectionList, sectionList
                 );
             }
-            this.sectionItemHeightStep = sectionList.map((value, index, array) => {
-                return 19 * index;
-            });
-            this.currentTopPicIndex = 0;
-            this.currentButtonPicIndex = this.checkPostionInPic(this.divRefs.current.clientHeight);
+            sectionList.forEach((value:SectionBean, index:number, array:SectionBean[]) => {
+                value.height = 19;
+            })
 
             this.setState({
                 sectionList: sectionList
@@ -128,27 +129,49 @@ export class SectionList extends React.Component<{container: Container}, {sectio
         return null;
     }
 
+    // renderBack() {
+    //     return <div className="SectionList" onScroll={(e) => this.scrollHandler(e)} ref={this.divRefs}>
+    //         <this.TopPadding sectionList={this} /> {
+    //             this.state.sectionList.map((sectionBean: SectionBean, index: number) => {
+    //                 const displayImg = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1; 
+    //                 return displayImg ? (
+    //                     <div 
+    //                         key={index} 
+    //                         onClick={(e) => this.handleSectionClick(e, sectionBean.index)} 
+    //                     >
+    //                         <a 
+    //                             className="SectionListItem" 
+    //                             style={{fontFamily:"DejaVu Sans", color:(sectionBean.index === this.state.selectedIndex ? '#35b5ff' : 'black')}}
+    //                         >{sectionBean.name}</a>
+    //                     </div>
+    //                 ) : null;
+    //             }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
+    //                 return value != null;
+    //             })
+    //         }
+    //         <this.BottomPadding sectionList={this}/>
+    //     </div>
+    // }
+
     render() {
-        return <div className="SectionList" onScroll={(e) => this.scrollHandler(e)} ref={this.divRefs}>
-            <this.TopPadding sectionList={this} /> {
-                this.state.sectionList.map((sectionBean: SectionBean, index: number) => {
-                    const displayImg = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1; 
-                    return displayImg ? (
-                        <div 
-                            key={index} 
-                            onClick={(e) => this.handleSectionClick(e, sectionBean.index)} 
-                        >
-                            <a 
-                                className="SectionListItem" 
-                                style={{fontFamily:"DejaVu Sans", color:(sectionBean.index === this.state.selectedIndex ? '#35b5ff' : 'black')}}
-                            >{sectionBean.name}</a>
-                        </div>
-                    ) : null;
-                }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
-                    return value != null;
-                })
-            }
-            <this.BottomPadding sectionList={this}/>
+        return <LazyLoader dataList={this.state.sectionList} />;
+    }
+}
+
+
+class SectionItem extends React.Component<{item:SectionBean}> {
+    constructor(props:{item:SectionBean}) {
+        super(props);
+    }
+
+    render() {
+        return <div>
+            <a 
+                className="SectionListItem" 
+                style={{fontFamily:"DejaVu Sans"}}
+            >{this.props.item.name}</a>
         </div>
     }
 }
+
+const LazyLoader = lazyLoader(SectionItem);
