@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {ImgComponent} from './ImgComponent';
+import {lazyLoader, HeightType, sectionList} from './LazyLoader';
 class SectionDetail {
     dirName:string;
     picPage:string;
@@ -12,7 +13,7 @@ class SectionDetail {
     }
 }
 
-class ImgDetail {
+class ImgDetail implements HeightType{
     name:string;
     width:number;
     height:number;
@@ -25,18 +26,9 @@ class ImgDetail {
 }
 
 export class Content extends React.Component<{index:string, password:string}, {sectionDetail:SectionDetail}> {
-
-    heightStep: Array<number> = [];
-
-    currentTopPicIndex: number = null;
-    currentButtonPicIndex: number = null;
-
-    divRefs:React.RefObject<HTMLDivElement>;
-
     constructor(props:{index: string, password:string}) {
         super(props);
         this.state = {sectionDetail: new SectionDetail()};
-        this.divRefs = React.createRef();
     }
 
     fecthSectionList(index: string) {
@@ -49,16 +41,6 @@ export class Content extends React.Component<{index:string, password:string}, {s
         })
         .then((json: any) => {
             const sectionDetail:SectionDetail = json;
-            const heights: Array<number> = sectionDetail.pics.map((pic) => {return pic.height});
-            this.heightStep = heights.map((height, index, heights) => {
-                if (index === 0) {
-                    return 0;
-                }
-                return heights.slice(0, index).reduce((height, current) => height + current);
-            });
-            this.divRefs.current.scrollTo(0, 0);
-            this.currentTopPicIndex = 0;
-            this.currentButtonPicIndex = this.checkPostionInPic(this.divRefs.current.clientHeight);
             this.setState({
                 sectionDetail:sectionDetail
             });
@@ -69,11 +51,6 @@ export class Content extends React.Component<{index:string, password:string}, {s
         this.fecthSectionList(this.props.index);        
     }
 
-    checkPostionInPic(postion: number): number {
-        return this.heightStep.filter((height) => {
-            return height < postion;
-        }).length - 1;
-    }
 
     componentDidUpdate(prevProps: {index:string}) {
         if (this.props.index !== prevProps.index) {
@@ -82,45 +59,24 @@ export class Content extends React.Component<{index:string, password:string}, {s
 
     }
 
-    scrollHandler(e : React.UIEvent) {
-        // this is a lazyload implament
-        const scrollTop: number = (e.target as HTMLDivElement).scrollTop;
-        const clientHeight: number = (e.target as HTMLDivElement).clientHeight;
-        let update = false;
-        // calculate the index of top picture after scroll
-        const refreshTopPicIndex = this.checkPostionInPic(scrollTop);
-        if (refreshTopPicIndex !== this.currentTopPicIndex) {
-            this.currentTopPicIndex = refreshTopPicIndex;
-            console.log(`change top to pic index: ${this.currentTopPicIndex}`);
-            update = true;
-        }
-        // calculate the index of button picture after scroll
-        const refreshButtonPicIndex = this.checkPostionInPic(scrollTop + clientHeight);
-        if (refreshButtonPicIndex !== this.currentButtonPicIndex) {
-            this.currentButtonPicIndex = refreshButtonPicIndex;
-            console.log(`change button to pic index: ${this.currentButtonPicIndex}`);
-            update = true;
-        }
-        // if any index of picture changed, re-render the page
-        if (update) {
-            this.setState(this.state);
-        }
+    render() {
+        return <LazyLoader dataList={this.state.sectionDetail.pics} parentComp={this} />
+    }
+}
+
+class ImgComponentItem extends React.Component<{item: ImgDetail, parentComp:Content}> {
+    constructor(props:{item: ImgDetail, parentComp:Content}) {
+        super(props);
     }
 
     render() {
-        return <div className="Content" onScroll={(e) => this.scrollHandler(e)}  ref={this.divRefs}>
-            {this.state.sectionDetail.pics.map((pic: ImgDetail, index: number) => {
-                const displayImg = index >= this.currentTopPicIndex - 1 && index <= this.currentButtonPicIndex + 1; 
-                return displayImg ? 
-                    <ImgComponent 
-                        width={pic.width} 
-                        height={pic.height} 
-                        key={index} 
-                        src={`/static/encrypted/${this.state.sectionDetail.dirName}/${pic.name}.bin`} 
-                        password={this.props.password} 
-                    /> :
-                    <div key={index} style={{width:`${pic.width}px`, height:`${pic.height}px`}} />
-            })}
-        </div>
+        return <ImgComponent 
+            width={this.props.item.width} 
+            height={this.props.item.height} 
+            src={`/static/encrypted/${this.props.parentComp.state.sectionDetail.dirName}/${this.props.item.name}.bin`} 
+            password={this.props.parentComp.props.password} 
+        /> 
     }
 }
+
+const LazyLoader = lazyLoader(ImgComponentItem, "Content")
