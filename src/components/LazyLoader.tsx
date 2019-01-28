@@ -28,8 +28,14 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
     return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, LazyState> {
         constructor(props:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>) {
             super(props);
-            this.itemHeightStep = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>) => {
-                return value.height * index;
+            const itemHeightList:Array<number> = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
+                return value.height;
+            });
+            this.itemHeightStep = itemHeightList.map((value:number, index:number, array:Array<number>):number => {
+                if (index == 0) {
+                    return 0;
+                }
+                return array.slice(0, index).reduce((value:number, current:number):number => value + current);
             });
 
             this.state = {
