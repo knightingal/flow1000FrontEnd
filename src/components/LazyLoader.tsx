@@ -14,15 +14,15 @@ interface HeightType {
 }
 
 // 输入的item数据必须包含一个height字段，用于表示每个item的高度
-interface LazyProps<ITEM_TYPE extends HeightType> {
+interface LazyProps<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE> {
     dataList:Array<ITEM_TYPE>;
 }
 
-function lazyLoader<ITEM_TYPE extends HeightType>(
+function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
     WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE>>
-):React.ComponentClass<LazyProps<ITEM_TYPE>> {
-    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE>, LazyState> {
-        constructor(props:LazyProps<ITEM_TYPE>) {
+):React.ComponentClass<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>> {
+    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, LazyState> {
+        constructor(props:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>) {
             super(props);
             const itemHeightList:Array<number> = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                 return value.height;
@@ -52,14 +52,16 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
             const refreshTopPicIndex = this.checkPostionInPic(scrollTop);
 
             if (refreshTopPicIndex !== this.state.currentTopPicIndex) {
-                this.setState({currentTopPicIndex: refreshTopPicIndex});
-                console.log(`change top to pic index: ${this.state.currentTopPicIndex}`);
+                console.log(`change top to pic index: ${refreshTopPicIndex}`);
+                if (refreshTopPicIndex != this.props.dataList.length)
+                    this.setState({currentTopPicIndex: refreshTopPicIndex});
             }
             // calculate the index of button picture after scroll
             const refreshButtonPicIndex = this.checkPostionInPic(scrollTop + clientHeight);
             if (refreshButtonPicIndex !== this.state.currentButtonPicIndex) {
-                this.setState({currentButtonPicIndex:refreshButtonPicIndex}) ;
-                console.log(`change button to pic index: ${this.state.currentButtonPicIndex}`);
+                console.log(`change button to pic index: ${refreshButtonPicIndex}`);
+                if (refreshButtonPicIndex != this.props.dataList.length)
+                    this.setState({currentButtonPicIndex:refreshButtonPicIndex}) ;
             }
         }
 
@@ -72,7 +74,12 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
                 if (self.state.currentTopPicIndex < 0) {
                     return <div style={{height:"0px"}} />;
                 }
-                return <div style={{height:`${self.itemHeightStep[self.state.currentTopPicIndex] - 19}px`}} />;
+                if (self.props.dataList.length == 0) {
+                    return <div style={{height:"0px"}} />;
+                }
+                const currentTopPicIndex: number = self.state.currentTopPicIndex;
+                const topPaddingHeight = self.itemHeightStep[currentTopPicIndex];
+                return <div style={{height:`${topPaddingHeight}px`}} />;
             }
             return null;
         }
@@ -81,6 +88,29 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
             return this.itemHeightStep.filter((height) => {
                 return height < postion;
             }).length - 1;
+        }
+
+        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, prevState:LazyState) {
+            if (this.props.dataList.length != prevProps.dataList.length) {
+                const itemHeightList:Array<number> = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
+                    return value.height;
+                });
+                console.log("itemHeightList:");
+                console.log(itemHeightList);
+                this.itemHeightStep = itemHeightList.map((value:number, index:number, array:Array<number>):number => {
+                    if (index == 0) {
+                        return 0;
+                    }
+                    const subArray = array.slice(0, index);
+                    return subArray.reduce((value:number, current:number):number => value + current);
+                });
+                console.log("itemHeighStep:");
+                console.log(this.itemHeightStep);
+                this.setState({
+                    currentTopPicIndex:0,
+                    currentButtonPicIndex:this.checkPostionInPic(this.divRefs.current.clientHeight),
+                });
+            }
         }
 
         componentDidMount() {
@@ -93,8 +123,13 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
         BottomPadding(props:{self:LazyLoader}) {
             let self = props.self;
             if (self.itemHeightStep != null && self.state.currentButtonPicIndex != null) {
+                if (self.state.currentButtonPicIndex + 1 >= self.props.dataList.length) {
+                    return <div style={{height:"0px"}} />;
+                }
                 return <div style={{height: 
-                    `${self.itemHeightStep[self.itemHeightStep.length - 1] - self.itemHeightStep[self.state.currentButtonPicIndex]}px`}} />;
+                    `${self.itemHeightStep[self.itemHeightStep.length - 1]
+                        + self.props.dataList[self.props.dataList.length - 1].height
+                        - self.itemHeightStep[self.state.currentButtonPicIndex + 1]}px`}} />;
             }
             return null;
         }
@@ -103,7 +138,7 @@ function lazyLoader<ITEM_TYPE extends HeightType>(
             return <div onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
-                    const display = index >= this.state.currentTopPicIndex - 1 && index <= this.state.currentButtonPicIndex + 1;
+                    const display = index >= this.state.currentTopPicIndex && index <= this.state.currentButtonPicIndex;
                     return display ?
                     (<WrappedComponent key={index} item={itemBean} />)
                     : null;
