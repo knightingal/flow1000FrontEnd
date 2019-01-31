@@ -79,4 +79,4 @@ class ImgComponentItem extends React.Component<{item: ImgDetail, parentComp:Cont
     }
 }
 
-const LazyLoader = lazyLoader(ImgComponentItem, "Content")
+const LazyLoader = lazyLoader(ImgComponentItem, "Content", 2)
