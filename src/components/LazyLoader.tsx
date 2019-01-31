@@ -23,7 +23,8 @@ interface LazyProps<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE> {
 
 export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
     WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE>>, 
-    className:string
+    className:string,
+    preLoadOffSet:number = 1
 ):React.ComponentClass<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>> {
     return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, LazyState> {
         constructor(props:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>) {
@@ -75,13 +76,13 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
                 // 这里有个bug： 滚轴滑动到最顶端时，currentTopPicIndex会=-1，这会导致sectionItemHeightStep[-1]取值异常，
                 // react就不会去更新topPadding的高度，在滑动速度很快时，顶端就会留下一块空白
                 // 所以这里为了修复这个问题，对currentTopPicIndex的值做了判定，<0时，topPadding高度设置为0
-                if (self.state.currentTopPicIndex < 0) {
+                const currentTopPicIndex: number = self.state.currentTopPicIndex - preLoadOffSet;
+                if (currentTopPicIndex < 0) {
                     return <div style={{height:"0px"}} />;
                 }
                 if (self.props.dataList.length == 0) {
                     return <div style={{height:"0px"}} />;
                 }
-                const currentTopPicIndex: number = self.state.currentTopPicIndex;
                 const topPaddingHeight = self.itemHeightStep[currentTopPicIndex];
                 return <div style={{height:`${topPaddingHeight}px`}} />;
             }
@@ -127,13 +128,14 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
         BottomPadding(props:{self:LazyLoader}) {
             let self = props.self;
             if (self.itemHeightStep != null && self.state.currentButtonPicIndex != null) {
-                if (self.state.currentButtonPicIndex + 1 >= self.props.dataList.length) {
+                const currentButtonPicIndex = self.state.currentButtonPicIndex + preLoadOffSet;
+                if (currentButtonPicIndex + 1 >= self.props.dataList.length) {
                     return <div style={{height:"0px"}} />;
                 }
                 return <div style={{height: 
                     `${self.itemHeightStep[self.itemHeightStep.length - 1]
                         + self.props.dataList[self.props.dataList.length - 1].height
-                        - self.itemHeightStep[self.state.currentButtonPicIndex + 1]}px`}} />;
+                        - self.itemHeightStep[currentButtonPicIndex + 1]}px`}} />;
             }
             return null;
         }
@@ -142,7 +144,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
             return <div className={className} onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
-                    const display = index >= this.state.currentTopPicIndex && index <= this.state.currentButtonPicIndex;
+                    const display = index >= this.state.currentTopPicIndex - preLoadOffSet && index <= this.state.currentButtonPicIndex + preLoadOffSet;
                     return display ?
                     (<WrappedComponent key={index} item={itemBean} parentComp={this.props.parentComp}/>)
                     : null;
