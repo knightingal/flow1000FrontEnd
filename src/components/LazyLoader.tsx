@@ -111,9 +111,11 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
                 });
                 console.log("itemHeighStep:");
                 console.log(this.itemHeightStep);
+                const scrollTop: number = this.divRefs.current.scrollTop;
+                const clientHeight: number = this.divRefs.current.clientHeight;
                 this.setState({
-                    currentTopPicIndex:0,
-                    currentButtonPicIndex:this.checkPostionInPic(this.divRefs.current.clientHeight),
+                    currentTopPicIndex:this.checkPostionInPic(scrollTop),
+                    currentButtonPicIndex:this.checkPostionInPic(scrollTop + clientHeight),
                 });
             }
         }
