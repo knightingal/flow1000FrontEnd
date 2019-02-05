@@ -1,7 +1,9 @@
 import * as React from 'react';
+import {Container} from './Container'
 
 interface WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE> {
-    item: ITEM_TYPE
+    item: ITEM_TYPE;
+    parentComp:PARENT_COMP_TYPE;
 }
 
 interface LazyState {
@@ -9,22 +11,23 @@ interface LazyState {
     currentButtonPicIndex:number;
 }
 
-interface HeightType {
+export interface HeightType {
     height: number;
 }
 
 // 输入的item数据必须包含一个height字段，用于表示每个item的高度
-interface LazyProps<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE> {
+export interface LazyProps<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PARENT_COMP_TYPE extends React.Component<T_PROPS, T_STATE>> {
     dataList:Array<ITEM_TYPE>;
+    parentComp:PARENT_COMP_TYPE;
 }
 
-export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
+export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PARENT_COMP_TYPE extends React.Component<T_PROPS, T_STATE>>(
     WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE>>, 
     className:string,
     preLoadOffSet:number = 1
-):React.ComponentClass<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>> {
-    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, LazyState> {
-        constructor(props:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>) {
+):React.ComponentClass<LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>> {
+    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, LazyState> {
+        constructor(props:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>) {
             super(props);
             const itemHeightList:Array<number> = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                 return value.height;
@@ -69,7 +72,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
 
         TopPadding(props:{self:LazyLoader}) {
             let self = props.self;
-            if (self.itemHeightStep != null && self.state.currentTopPicIndex != null) {
+            if (self.itemHeightStep != null && self.state.currentTopPicIndex != null && self.props.dataList != null) {
                 // 这里有个bug： 滚轴滑动到最顶端时，currentTopPicIndex会=-1，这会导致sectionItemHeightStep[-1]取值异常，
                 // react就不会去更新topPadding的高度，在滑动速度很快时，顶端就会留下一块空白
                 // 所以这里为了修复这个问题，对currentTopPicIndex的值做了判定，<0时，topPadding高度设置为0
@@ -92,7 +95,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
             }).length - 1;
         }
 
-        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, prevState:LazyState) {
+        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, prevState:LazyState) {
             if (this.props.dataList.length != prevProps.dataList.length) {
                 const itemHeightList:Array<number> = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                     return value.height;
@@ -140,12 +143,12 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
         }
 
         render() {
-            return <div onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
+            return <div className={className} onScroll={(e)=>this.scrollHandler(e)} ref={this.divRefs} style={{height:"100%", overflowY:"scroll"}}>
                 <this.TopPadding self={this} />
                 {this.props.dataList.map((itemBean:ITEM_TYPE, index: number) => {
                     const display = index >= this.state.currentTopPicIndex - preLoadOffSet && index <= this.state.currentButtonPicIndex + preLoadOffSet;
                     return display ?
-                    (<WrappedComponent key={index} item={itemBean} />)
+                    (<WrappedComponent key={index} item={itemBean} parentComp={this.props.parentComp}/>)
                     : null;
                 }).filter((value: JSX.Element, index: number, array: JSX.Element[]) => {
                     return value != null;
@@ -165,8 +168,8 @@ class SectionBean implements HeightType {
     }
 }
 
-class WrappedDiv extends React.Component<{item:SectionBean}> {
-    constructor(props:{item:SectionBean}) {
+class WrappedDiv extends React.Component<{item:SectionBean, parentComp:Container}> {
+    constructor(props:{item:SectionBean, parentComp:Container}) {
         super(props);
     }
 
@@ -187,4 +190,4 @@ function initSectionList(count: number) {
 }
 export const sectionList:Array<SectionBean> = initSectionList(500);
 
-export const LazyDiv = lazyLoader(WrappedDiv);
+export const LazyDiv:React.ComponentClass<LazyProps<SectionBean, {}, {popup: boolean ,index: string}, Container>> = lazyLoader(WrappedDiv, "");
