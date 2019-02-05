@@ -16,18 +16,18 @@ export interface HeightType {
 }
 
 // 输入的item数据必须包含一个height字段，用于表示每个item的高度
-interface LazyProps<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE> {
+export interface LazyProps<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PARENT_COMP_TYPE extends React.Component<T_PROPS, T_STATE>> {
     dataList:Array<ITEM_TYPE>;
     parentComp:PARENT_COMP_TYPE;
 }
 
-export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
+export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PARENT_COMP_TYPE extends React.Component<T_PROPS, T_STATE>>(
     WrappedComponent: React.ComponentClass<WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE>>, 
     className:string,
     preLoadOffSet:number = 1
-):React.ComponentClass<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>> {
-    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, LazyState> {
-        constructor(props:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>) {
+):React.ComponentClass<LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>> {
+    return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, LazyState> {
+        constructor(props:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>) {
             super(props);
             const itemHeightList:Array<number> = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                 return value.height;
@@ -95,7 +95,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType, PARENT_COMP_TYPE>(
             }).length - 1;
         }
 
-        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, PARENT_COMP_TYPE>, prevState:LazyState) {
+        componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, prevState:LazyState) {
             if (this.props.dataList.length != prevProps.dataList.length) {
                 const itemHeightList:Array<number> = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                     return value.height;
@@ -190,4 +190,4 @@ function initSectionList(count: number) {
 }
 export const sectionList:Array<SectionBean> = initSectionList(500);
 
-export const LazyDiv = lazyLoader(WrappedDiv, "");
+export const LazyDiv:React.ComponentClass<LazyProps<SectionBean, {}, {popup: boolean ,index: string}, Container>> = lazyLoader(WrappedDiv, "");
