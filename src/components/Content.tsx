@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {ImgComponent} from './ImgComponent';
-import {lazyLoader, HeightType, sectionList} from './LazyLoader';
+import {lazyLoader, HeightType, sectionList, LazyProps} from './LazyLoader';
 class SectionDetail {
     dirName:string;
     picPage:string;
@@ -79,4 +79,13 @@ class ImgComponentItem extends React.Component<{item: ImgDetail, parentComp:Cont
     }
 }
 
-const LazyLoader = lazyLoader(ImgComponentItem, "Content", 2)
+const LazyLoader: 
+    React.ComponentClass<
+        LazyProps<
+            ImgDetail, 
+            {index:string, password:string}, 
+            {sectionDetail:SectionDetail}, 
+            Content
+        >
+    > 
+= lazyLoader(ImgComponentItem, "Content", 2)

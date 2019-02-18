@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Container} from './Container';
-import {lazyLoader, HeightType, sectionList} from './LazyLoader';
+import {lazyLoader, HeightType, sectionList, LazyProps} from './LazyLoader';
 class SectionBean implements HeightType{
     height:number;
 
@@ -9,14 +9,22 @@ class SectionBean implements HeightType{
     mtime:string;
     selected:boolean;
 }
+interface SectionListProps {
+    container: Container
+}
 
-export class SectionList extends React.Component<{container: Container}, {sectionList:Array<SectionBean>, selectedIndex: string}> {
+interface SectionListStatus {
+    sectionList:Array<SectionBean>; 
+    selectedIndex: string;
+}
+
+export class SectionList extends React.Component<SectionListProps, SectionListStatus> {
     url:URL;
     battleShipPage:Boolean;
     sectionItemHeightStep:Array<number> = null;
     divRefs:React.RefObject<HTMLDivElement>;
     selectedSection:SectionBean;
-    constructor(props:{container: Container}) {
+    constructor(props:SectionListProps) {
         super(props);
         this.state = {sectionList:[], selectedIndex: null};
         this.url = new URL(document.URL);
@@ -117,4 +125,13 @@ class SectionItem extends React.Component<{item:SectionBean, parentComp: Section
     }
 }
 
-const LazyLoader = lazyLoader(SectionItem, "SectionList");
+const LazyLoader: 
+    React.ComponentClass<
+        LazyProps<
+            SectionBean, 
+            SectionListProps, 
+            SectionListStatus, 
+            SectionList
+        >
+    > 
+= lazyLoader(SectionItem, "SectionList");
