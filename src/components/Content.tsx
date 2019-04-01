@@ -25,10 +25,10 @@ class ImgDetail implements HeightType{
     }
 }
 
-export class Content extends React.Component<{index:string, password:string}, {sectionDetail:SectionDetail}> {
+export class Content extends React.Component<{index:string, password:string}, {sectionDetail:SectionDetail, scrollTop:number}> {
     constructor(props:{index: string, password:string}) {
         super(props);
-        this.state = {sectionDetail: new SectionDetail()};
+        this.state = {sectionDetail: new SectionDetail(), scrollTop:0};
     }
 
     fecthSectionList(index: string) {
@@ -42,7 +42,8 @@ export class Content extends React.Component<{index:string, password:string}, {s
         .then((json: any) => {
             const sectionDetail:SectionDetail = json;
             this.setState({
-                sectionDetail:sectionDetail
+                sectionDetail:sectionDetail,
+                scrollTop:0
             });
         });
     }
@@ -60,7 +61,7 @@ export class Content extends React.Component<{index:string, password:string}, {s
     }
 
     render() {
-        return <LazyLoader dataList={this.state.sectionDetail.pics} parentComp={this} />
+        return <LazyLoader dataList={this.state.sectionDetail.pics} parentComp={this} scrollTop={this.state.scrollTop}/>
     }
 }
 

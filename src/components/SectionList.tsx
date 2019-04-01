@@ -99,7 +99,7 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
     }
 
     render() {
-        return <LazyLoader dataList={this.state.sectionList} parentComp={this} />;
+        return <LazyLoader dataList={this.state.sectionList} parentComp={this} scrollTop={0}/>;
     }
 }
 

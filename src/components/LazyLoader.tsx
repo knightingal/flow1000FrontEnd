@@ -19,6 +19,7 @@ export interface HeightType {
 export interface LazyProps<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PARENT_COMP_TYPE extends React.Component<T_PROPS, T_STATE>> {
     dataList:Array<ITEM_TYPE>;
     parentComp:PARENT_COMP_TYPE;
+    scrollTop:number;
 }
 
 export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PARENT_COMP_TYPE extends React.Component<T_PROPS, T_STATE>>(
@@ -97,6 +98,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PAREN
 
         componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, prevState:LazyState) {
             if (this.props.dataList.length != prevProps.dataList.length) {
+                this.divRefs.current.scrollTop = this.props.scrollTop;
                 const itemHeightList:Array<number> = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                     return value.height;
                 });
