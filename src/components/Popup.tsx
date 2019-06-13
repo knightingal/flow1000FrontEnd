@@ -65,7 +65,7 @@ export class Popup extends React.Component<{container: Container}, {transform:st
                             fontFamily:'DejaVu Sans',
                             display:'block'
                         }}
-                    >IN PUT YOUR PASSWORD</label>
+                    >Password</label>
                 </div>
                 <div>
                     <input 
