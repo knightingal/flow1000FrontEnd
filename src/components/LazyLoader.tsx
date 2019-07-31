@@ -192,4 +192,4 @@ function initSectionList(count: number) {
 }
 export const sectionList:Array<SectionBean> = initSectionList(500);
 
-export const LazyDiv:React.ComponentClass<LazyProps<SectionBean, {}, {popup: boolean ,index: string}, Container>> = lazyLoader(WrappedDiv, "");
+export const LazyDiv:React.ComponentClass<LazyProps<SectionBean, {}, {popup: boolean ,index: string, title: string}, Container>> = lazyLoader(WrappedDiv, "");

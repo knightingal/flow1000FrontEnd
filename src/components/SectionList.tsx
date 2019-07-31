@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Container} from './Container';
 import {lazyLoader, HeightType, sectionList, LazyProps} from './LazyLoader';
-class SectionBean implements HeightType{
+export class SectionBean implements HeightType{
     height:number;
 
     index:string;
@@ -66,15 +66,8 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
         });
     }
 
-    handleSectionClick(e: React.MouseEvent, index: string) {
-        this.props.container.notifySectionClick(index);
-        this.setState({
-            selectedIndex: index
-        });
-    }
-    
     notifySectionClick(selectedSection:SectionBean) {
-        this.props.container.notifySectionClick(selectedSection.index);
+        this.props.container.notifySectionClick(selectedSection);
         if (this.selectedSection != null) {
             this.selectedSection.selected = false;
         }
