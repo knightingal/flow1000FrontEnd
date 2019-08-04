@@ -1,7 +1,10 @@
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: {
+        index: "./src/index.tsx",
+        battleship: "./src/battleship.tsx",
+    },
     output: {
-        filename: "bundle.js",
+        filename: "[name].js",
         path: __dirname + "/dist"
     },
     mode: "development",
