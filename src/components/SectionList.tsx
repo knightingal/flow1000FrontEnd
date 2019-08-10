@@ -80,11 +80,13 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
 
     componentDidMount() {
         this.fecthSectionList();        
-        const ws = new WebSocket("ws://127.0.0.1:8000/updateListenerWs");
+        const ws = new WebSocket(`ws://${this.url.hostname}/chat/`);
 
         ws.onmessage = (event: MessageEvent) => {
             const data = event.data;
+            console.log(`onmessage: ${data}`);
             const section: SectionBean = JSON.parse(data);
+            section.height = 24;
             this.setState({
                 sectionList: this.state.sectionList.concat(section)
             });
@@ -92,7 +94,7 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
     }
 
     render() {
-        return <LazyLoader dataList={this.state.sectionList} parentComp={this} scrollTop={0}/>;
+        return <LazyLoader dataList={this.state.sectionList} parentComp={this} scrollTop={-1}/>;
     }
 }
 

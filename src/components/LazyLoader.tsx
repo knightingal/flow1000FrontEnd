@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {Container} from './Container'
+import {LazyContainer} from './LazyContainer'
 
 interface WrappedProps<ITEM_TYPE, PARENT_COMP_TYPE> {
     item: ITEM_TYPE;
@@ -30,6 +31,7 @@ export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PAREN
     return class LazyLoader extends React.Component<LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, LazyState> {
         constructor(props:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>) {
             super(props);
+            console.log("lazyLoader.constructor");
             const itemHeightList:Array<number> = props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                 return value.height;
             });
@@ -97,8 +99,11 @@ export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PAREN
         }
 
         componentDidUpdate(prevProps:LazyProps<ITEM_TYPE, T_PROPS, T_STATE, PARENT_COMP_TYPE>, prevState:LazyState) {
+            console.log("lazyLoader.componentDidUpdate");
             if (this.props.dataList.length != prevProps.dataList.length) {
-                this.divRefs.current.scrollTop = this.props.scrollTop;
+                if (this.props.scrollTop >= 0) {
+                    this.divRefs.current.scrollTop = this.props.scrollTop;
+                }
                 const itemHeightList:Array<number> = this.props.dataList.map((value:ITEM_TYPE, index:number, array:Array<ITEM_TYPE>):number => {
                     return value.height;
                 });
@@ -161,22 +166,22 @@ export function lazyLoader<ITEM_TYPE extends HeightType, T_PROPS, T_STATE, PAREN
     }
 }
 
-class SectionBean implements HeightType {
+export class SectionBean implements HeightType {
     name: string;
     height: number;
     constructor(name:string) {
         this.name = name;
-        this.height = 19;
+        this.height = 21;
     }
 }
 
-class WrappedDiv extends React.Component<{item:SectionBean, parentComp:Container}> {
-    constructor(props:{item:SectionBean, parentComp:Container}) {
+class WrappedDiv extends React.Component<{item:SectionBean, parentComp:LazyContainer}> {
+    constructor(props:{item:SectionBean, parentComp:LazyContainer}) {
         super(props);
     }
 
     render() {
-        return <div>
+        return <div style={{height:"21px"}}>
             <a style={{fontFamily:"DejaVu Sans"}} >
             {this.props.item.name}
             </a>
@@ -192,4 +197,4 @@ function initSectionList(count: number) {
 }
 export const sectionList:Array<SectionBean> = initSectionList(500);
 
-export const LazyDiv:React.ComponentClass<LazyProps<SectionBean, {}, {popup: boolean ,index: string, title: string}, Container>> = lazyLoader(WrappedDiv, "");
+export const LazyDiv:React.ComponentClass<LazyProps<SectionBean, {}, {sectionList: Array<SectionBean>}, LazyContainer>> = lazyLoader(WrappedDiv, "");

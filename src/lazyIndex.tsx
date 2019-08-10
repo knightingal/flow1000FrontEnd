@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {Container} from './components/Container';
+import {LazyContainer} from './components/LazyContainer';
 
-console.log("index.tsx")
+console.log("lazyIndex.tsx")
 ReactDOM.render(
-    <Container />,
+    <LazyContainer />,
     document.getElementById('root')
 )
