@@ -84,6 +84,7 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
 
         ws.onmessage = (event: MessageEvent) => {
             const data = event.data;
+            console.log(`onmessage: ${data}`);
             const section: SectionBean = JSON.parse(data);
             section.height = 24;
             this.setState({
@@ -93,7 +94,7 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
     }
 
     render() {
-        return <LazyLoader dataList={this.state.sectionList} parentComp={this} scrollTop={0}/>;
+        return <LazyLoader dataList={this.state.sectionList} parentComp={this} scrollTop={-1}/>;
     }
 }
 

@@ -31,13 +31,14 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
         this.password = password;
     }
 
+    handleSectionClick(e: React.MouseEvent) {
+        console.log("zz clicked");
+    }
+
     render() {
         
         const url = new URL(document.URL);
         const lazy = url.pathname.indexOf("lazy.html") >= 0;
-        if (lazy === true) {
-            return <LazyDiv dataList={sectionList} parentComp={this} scrollTop={0}/>
-        }
 
         if (this.state.popup == true) {
             return <Popup container={this}/>

@@ -2,6 +2,7 @@ module.exports = {
     entry: {
         index: "./src/index.tsx",
         battleship: "./src/battleship.tsx",
+        lazyIndex: "./src/lazyIndex.tsx",
     },
     output: {
         filename: "[name].js",
