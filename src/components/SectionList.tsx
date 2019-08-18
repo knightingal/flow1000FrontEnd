@@ -10,7 +10,8 @@ export class SectionBean implements HeightType{
     selected:boolean;
 }
 interface SectionListProps {
-    container: Container
+    container: Container;
+    fetchUrl: string;
 }
 
 interface SectionListStatus {
@@ -28,14 +29,15 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
         super(props);
         this.state = {sectionList:[], selectedIndex: null};
         this.url = new URL(document.URL);
-        this.battleShipPage = this.url.pathname.indexOf("battleships.html") >= 0;
+        // this.battleShipPage = this.url.pathname.indexOf("battleships.html") >= 0;
         this.divRefs = React.createRef();
         this.selectedSection = null;
     }
 
     fecthSectionList() {
         let fetchUrl:string;
-        fetchUrl = this.battleShipPage ? "/local1000/picIndexAjax?album=BattleShips" : "/local1000/picIndexAjax";
+        // fetchUrl = this.battleShipPage ? "/local1000/picIndexAjax?album=BattleShips" : "/local1000/picIndexAjax";
+        fetchUrl = this.props.fetchUrl;
 
         console.log("fetchUrl is " + fetchUrl);
         fetch(fetchUrl)
@@ -44,15 +46,15 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
         })
         .then((json: any) => {
             let sectionList:Array<SectionBean> = json;
-            if (this.battleShipPage == true) {
-                //sectionList.(sectionList);
-                sectionList = [].concat(
-                    sectionList, sectionList, sectionList, sectionList,
-                    sectionList, sectionList, sectionList, sectionList,
-                    sectionList, sectionList, sectionList, sectionList,
-                    sectionList, sectionList, sectionList, sectionList
-                );
-            }
+            // if (this.battleShipPage == true) {
+            //     //sectionList.(sectionList);
+            //     sectionList = [].concat(
+            //         sectionList, sectionList, sectionList, sectionList,
+            //         sectionList, sectionList, sectionList, sectionList,
+            //         sectionList, sectionList, sectionList, sectionList,
+            //         sectionList, sectionList, sectionList, sectionList
+            //     );
+            // }
             sectionList.forEach((value:SectionBean, index:number, array:SectionBean[]) => {
                 //  这里我犯了一个错误，实际上这里的div元素的高度是24，里面的a元素的高度才是19，
                 // 这个错误导致后续对padding div高度计算的错误，引发了一个定位了很久的bug。

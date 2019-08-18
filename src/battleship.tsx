@@ -4,6 +4,6 @@ import {Container} from './components/Container';
 
 console.log("battleship.tsx")
 ReactDOM.render(
-    <Container />,
+    <Container fetchUrl="/local1000/picIndexAjax?album=BattleShips"/>,
     document.getElementById('root')
 )

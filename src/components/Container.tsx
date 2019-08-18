@@ -3,10 +3,11 @@ import {Header} from './Header';
 import {SectionList, SectionBean} from './SectionList';
 import {Content} from './Content';
 import {Popup} from './Popup';
-import {LazyDiv, sectionList} from './LazyLoader';
 import './Style.css';
-
-export class Container extends React.Component<{}, {popup: boolean ,index: string, title: string}> {
+export interface ContainerProps {
+    fetchUrl:string;
+}
+export class Container extends React.Component<ContainerProps, {popup: boolean ,index: string, title: string}> {
     password:string;
 
     notifySectionClick(selectedSection: SectionBean) {
@@ -16,7 +17,7 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
         });
     }
 
-    constructor(props: {}) {
+    constructor(props: ContainerProps) {
         super(props);
         this.state = {index: "0", popup: true, title: ""};
     }
@@ -36,10 +37,6 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
     }
 
     render() {
-        
-        const url = new URL(document.URL);
-        const lazy = url.pathname.indexOf("lazy.html") >= 0;
-
         if (this.state.popup == true) {
             return <Popup container={this}/>
         } else {
@@ -47,7 +44,7 @@ export class Container extends React.Component<{}, {popup: boolean ,index: strin
             <Header title={this.state.title} />
             <div className="Container">
                 <Content index={this.state.index} password={this.password}/>
-                <SectionList container={this}/>
+                <SectionList container={this} fetchUrl={this.props.fetchUrl}/>
                 <div className="Right" />
             </div>
             <footer className="Footer" />

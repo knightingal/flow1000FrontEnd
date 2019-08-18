@@ -4,6 +4,6 @@ import {Container} from './components/Container';
 
 console.log("index.tsx")
 ReactDOM.render(
-    <Container />,
+    <Container fetchUrl="/local1000/picIndexAjax/"/>,
     document.getElementById('root')
 )
