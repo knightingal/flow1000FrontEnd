@@ -93,6 +93,12 @@ export class SectionList extends React.Component<SectionListProps, SectionListSt
                 sectionList: this.state.sectionList.concat(section)
             });
         }
+
+        function timeHandler() {
+            ws.send("heart beat");
+            setTimeout(timeHandler, 10000);
+        }
+        setTimeout(timeHandler, 10000);
     }
 
     render() {

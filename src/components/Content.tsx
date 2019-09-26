@@ -85,7 +85,7 @@ const LazyLoader:
         LazyProps<
             ImgDetail, 
             {index:string, password:string}, 
-            {sectionDetail:SectionDetail}, 
+            {}, 
             Content
         >
     > 
